@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Low Signal — Thread Bingo</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#161a20; --ink:#cfd6e1; --muted:#9aa3b2;
+    --accent1:#5078D2; --accent2:#F58264; --accent3:#FFD787; /* fallback */
+    --success:#6dd5a1; --danger:#d85a5a; --line:rgba(255,255,255,.06);
+    --win:#71e4c0;
+  }
+  body{margin:0; background:#0b0d11}
+  .ls-wrap{font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    color:var(--ink); background:var(--bg); padding:24px; border-radius:16px;
+    max-width:1000px; margin:24px auto; box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  /* ===== Title / Brand ===== */
+  .ls-head{display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:18px}
+  .ls-brand{position:relative; padding-right:8px}
+  .ls-logo{
+    margin:0; line-height:1; font-weight:900; letter-spacing:.6px;
+    font-size:28px; text-transform:uppercase;
+    background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter: drop-shadow(0 2px 12px rgba(0,0,0,.35));
+  }
+  .ls-logo .thin{font-weight:800; opacity:.95}
+  .ls-spark{
+    position:absolute; left:2px; right:120px; height:3px; bottom:-6px; border-radius:999px;
+    background:linear-gradient(90deg,transparent,var(--accent1),var(--accent2),var(--accent3),transparent);
+    opacity:.85; overflow:hidden;
+  }
+  .ls-spark::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(90deg,transparent 0%, #fff 50%, transparent 100%);
+    mix-blend-mode:overlay; opacity:.25; transform:translateX(-100%);
+    animation:ls-scan 3.6s linear infinite;
+  }
+  @keyframes ls-scan{to{transform:translateX(100%)}}
+  .ls-sub{font-size:12px; color:var(--muted); margin-top:10px}
+  .ls-controls{display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end}
+  .ls-field{display:flex; flex-direction:column; gap:6px}
+  .ls-label{font-size:11px; color:var(--muted)}
+  .ls-input, .ls-select{background:#10151c; border:1px solid var(--line); color:var(--ink);
+    padding:8px 10px; border-radius:10px; font-size:13px; min-width:180px}
+  .ls-btn{border:0; padding:9px 12px; border-radius:10px; background:#1e232b; color:var(--ink); font-size:12px; cursor:pointer}
+  .ls-btn:hover{filter:brightness(1.12)}
+  .ls-btn.grad{background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3)); color:#0b1116; font-weight:700}
+  .ls-legend{margin:14px 0 16px; padding:12px; border:1px solid var(--line); border-radius:12px;
+    background:#121720; font-size:12px; color:var(--muted);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.03) inset, 0 0 16px rgba(0,0,0,.25) }
+  /* ===== Grid (glow) ===== */
+  .ls-grid{position:relative; display:grid; grid-template-columns:repeat(5,1fr); gap:10px; padding:10px; border-radius:14px;
+    background:linear-gradient(180deg,#0c0f14,#0a0d12);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.04) inset,
+      0 0 22px rgba(0,0,0,.35);
+  }
+  .ls-grid::before{
+    content:""; position:absolute; inset:-2px; border-radius:16px; pointer-events:none; opacity:.35;
+    background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    padding:2px; filter:blur(.4px);
+  }
+  .ls-cell{position:relative; aspect-ratio:1/1; background:linear-gradient(135deg,#1a1f27,#0f1318);
+    border-radius:12px; overflow:hidden; border:1px solid var(--line); cursor:pointer}
+  .ls-cell::before{
+    content:""; position:absolute; inset:-1px; border-radius:12px; pointer-events:none;
+    background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    padding:1px; opacity:.28; filter:blur(.3px);
+    box-shadow: 0 0 18px rgba(0,0,0,.35);
+  }
+  .ls-cell:hover::before{opacity:.55}
+  .ls-img{position:absolute; inset:0; background-size:cover; background-position:center; filter:saturate(1.05); opacity:.95}
+  .ls-shade{position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.45))}
+  .ls-text{position:absolute; left:10px; right:10px; bottom:36px; font-size:12px; line-height:1.25; color:#eaeef7; text-shadow:0 1px 2px rgba(0,0,0,.6)}
+  .ls-link{position:absolute; left:10px; bottom:8px; font-size:11px; color:#b8c8ff; text-decoration:underline; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; right:10px}
+  .ls-badge{position:absolute; top:8px; left:8px; padding:5px 8px; font-size:10px; border-radius:8px; background:rgba(0,0,0,.55); color:#fff; border:1px solid var(--line)}
+  .ls-done{position:absolute; inset:0; display:grid; place-items:center; background:rgba(10,17,12,.55); backdrop-filter: blur(2px); opacity:0; transition:.18s}
+  .ls-cell.is-done .ls-done{opacity:1}
+  .ls-check{font-size:28px; color:var(--success); text-shadow:0 0 12px rgba(109,213,161,.35)}
+  .ls-free{font-weight:700; letter-spacing:.3px}
+  .ls-winline{position:absolute; pointer-events:none; border-radius:8px;
+    box-shadow:0 0 0 2px var(--win) inset, 0 0 20px rgba(113,228,192,.35)}
+  .ls-banner{position:absolute; top:-10px; right:0; left:0; display:none; justify-content:center}
+  .ls-banner span{background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3)); color:#0b1116; font-weight:800; letter-spacing:.2px; padding:8px 14px; border-radius:10px; box-shadow:0 10px 25px rgba(0,0,0,.35)}
+  .ls-banner.show{display:flex}
+  .ls-modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.5); z-index:9999}
+  .ls-modal.show{display:grid}
+  .ls-card{width:min(520px,90vw); background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:0 20px 50px rgba(0,0,0,.6)}
+  .ls-card h3{margin:0 0 8px 0; font-size:16px}
+  .ls-row{display:flex; gap:10px; margin-top:10px}
+  .ls-row > *{flex:1}
+  .ls-note{font-size:11px; color:var(--muted); margin-top:6px}
+  .ls-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:12px}
+  .ls-mini{font-size:11px; padding:7px 9px; border-radius:8px}
+  .ls-danger{background:linear-gradient(90deg,#6b2a2a,#d85a5a); color:#fff}
+  .ls-success{background:linear-gradient(90deg,#2b694a,#6dd5a1); color:#0b1116}
+  .ls-ghost{background:#1e232b; color:var(--ink)}
+  .ls-chk{display:flex; gap:8px; align-items:center; font-size:12px; margin-top:10px}
+</style>
+</head>
+<body>
+<div class="ls-wrap" id="bingoApp">
+  <div class="ls-head">
+    <div class="ls-brand">
+      <h1 class="ls-logo"><span class="thin">LOW</span> SIGNAL</h1>
+      <div class="ls-spark"></div>
+      <div class="ls-sub">Single-click = edit • Double-click = toggle complete • Center is FREE • Theme matches your membergroup.</div>
+    </div>
+    <div class="ls-controls">
+      <div class="ls-field">
+        <label class="ls-label">profile id</label>
+        <input class="ls-input" id="profileId" placeholder="e.g. yana-main or character-name">
+      </div>
+      <div class="ls-field">
+        <label class="ls-label">load saved profile</label>
+        <div style="display:flex; gap:8px;">
+          <select class="ls-select" id="profilesList"></select>
+          <button class="ls-btn" id="loadProfile">load</button>
+          <button class="ls-btn" id="deleteProfile">delete</button>
+        </div>
+      </div>
+      <button class="ls-btn grad" id="saveProfile">save</button>
+      <button class="ls-btn" id="resetBoard">reset board</button>
+    </div>
+  </div>
+  <div class="ls-legend">
+    <b>Legend:</b> add a thread link + image per square • 5×5 board • win lines highlight and show a BINGO banner.
+  </div>
+  <div class="ls-grid" id="grid">
+    <div class="ls-banner" id="banner"><span>✦ B I N G O ✦</span></div>
+  </div>
+</div>
+<div class="ls-modal" id="modal">
+  <div class="ls-card">
+    <h3>Edit Square</h3>
+    <div class="ls-row">
+      <div>
+        <div class="ls-label">prompt</div>
+        <input type="text" class="ls-input" id="promptInput" disabled>
+      </div>
+    </div>
+    <div class="ls-row">
+      <div>
+        <div class="ls-label">thread link (URL)</div>
+        <input type="url" class="ls-input" id="urlThread" placeholder="https://yourthreadlink">
+      </div>
+    </div>
+    <div class="ls-row">
+      <input type="url" class="ls-input" id="urlImage" placeholder="image URL (optional)">
+      <input type="file" class="ls-input" id="fileImage" accept="image/*">
+    </div>
+    <label class="ls-chk">
+      <input type="checkbox" id="doneChk"> mark this square complete
+    </label>
+    <div class="ls-note">Tip: image URL (imgur/imgbb) saves tiny. File uploads store locally as data URLs.</div>
+    <div class="ls-actions">
+      <button class="ls-btn ls-mini ls-danger" id="clearImage">remove image</button>
+      <button class="ls-btn ls-mini ls-ghost" id="closeModal">close</button>
+      <button class="ls-btn ls-mini ls-success" id="saveSquare">save</button>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  const SIZE = 5;
+  const STORAGE_PREFIX = 'lowSignalBingo_v2_';
+  const THEMES = {
+    'g-2':  ['#5078D2','#F58264','#FFD787'], // Guest
+    'g-4':  ['#8A5A16','#DFA546','#F8CC76'], // Staff
+    'g-6':  ['#A13D5B','#E8718A','#FFA0B2'], // Romance
+    'g-7':  ['#161B2E','#353E58','#616B89'], // Mystery
+    'g-8':  ['#3D338D','#7362E8','#9D8CFF'], // Fantasy
+    'g-9':  ['#823424','#BF5C40','#E89A65'], // Drama
+    'g-10': ['#00666D','#289DA5','#5AD2DC'], // Sci-Fi
+    'g-11': ['#360000','#760A0A','#AA2727'], // Horror
+    'g-12': ['#BEAF96','#E6DCC8','#FFFBEF'], // Comedy
+    'g-13': ['#856CB6','#C1AAE8','#DFD0FC'], // Tragedy
+    'g-14': ['#78645A','#AA917D','#E1CDB9'], // Slice of Life
+    'g-16': ['#683616','#B55F2B','#E89952'], // Thriller
+  };
+  function applyThemeFromBody(){
+    try{
+      const classes = (document.body.className || '').split(/\s+/);
+      const key = classes.find(c => THEMES[c]);
+      const [a,b,c] = THEMES[key] || THEMES['g-2'];
+      document.documentElement.style.setProperty('--accent1', a);
+      document.documentElement.style.setProperty('--accent2', b);
+      document.documentElement.style.setProperty('--accent3', c);
+    }catch(e){}
+  }
+  applyThemeFromBody();
+
+  const gridEl = document.getElementById('grid');
+  const banner = document.getElementById('banner');
+  const modal = document.getElementById('modal');
+  const promptInput = document.getElementById('promptInput');
+  const urlThread = document.getElementById('urlThread');
+  const urlImage = document.getElementById('urlImage');
+  const fileImage = document.getElementById('fileImage');
+  const doneChk = document.getElementById('doneChk');
+  const clearBtn = document.getElementById('clearImage');
+  const closeBtn = document.getElementById('closeModal');
+  const saveBtn = document.getElementById('saveSquare');
+  const profileIdEl = document.getElementById('profileId');
+  const profilesList = document.getElementById('profilesList');
+  const loadProfileBtn = document.getElementById('loadProfile');
+  const deleteProfileBtn = document.getElementById('deleteProfile');
+  const saveProfileBtn = document.getElementById('saveProfile');
+
+  const bank = [
+    "public argument","first kiss (or almost)","broken phone screen","confession in the rain",
+    "caught lying","apology that isn’t one","late-night drive","crime of opportunity",
+    "soft domestic moment","unexpected softness","seen by the wrong person","rivals to allies",
+    "stolen glance","self-sabotage","petty revenge","drunk honesty","found footage",
+    "unreliable narration","secret exposed","we shouldn’t be here","left on read",
+    "make a wish","meet cute (messy)","burn it down","ghosted / returned"
+  ];
+  const midIndex = Math.floor((SIZE*SIZE)/2);
+
+  const storageKey = () => STORAGE_PREFIX + (profileIdEl.value.trim() || 'default');
+  const saveState = (s) => localStorage.setItem(storageKey(), JSON.stringify(s));
+  const loadState = (key) => {
+    const raw = localStorage.getItem(key || storageKey());
+    try { return raw ? JSON.parse(raw) : null; } catch { return null; }
+  };
+  function listProfiles(){
+    profilesList.innerHTML = '';
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(STORAGE_PREFIX));
+    if(!keys.length){ profilesList.innerHTML = '<option value="">(none yet)</option>'; return; }
+    keys.forEach(k => {
+      const id = k.replace(STORAGE_PREFIX,'');
+      const opt = document.createElement('option'); opt.value = id; opt.textContent = id;
+      profilesList.appendChild(opt);
+    });
+  }
+  function defaultBoard(){
+    const prompts = [...bank].sort(() => Math.random() - .5).slice(0, SIZE*SIZE);
+    prompts[midIndex] = "free space";
+    return prompts.map((t,i)=>({ text:t, img:null, url:null, done:(i===midIndex) }));
+  }
+  let state = loadState() || defaultBoard();
+  let selectedIndex = null;
+  let winlineEl = null;
+
+  function clearWin(){
+    banner.classList.remove('show');
+    if(winlineEl){ winlineEl.remove(); winlineEl = null; }
+  }
+  function drawWinLine(cells){
+    const first = gridEl.children[cells[0]];
+    const last  = gridEl.children[cells[cells.length-1]];
+    if(!first || !last) return;
+    const r1 = first.getBoundingClientRect(); const r2 = last.getBoundingClientRect();
+    const rg = gridEl.getBoundingClientRect();
+    const pad = 6;
+    const left = Math.min(r1.left, r2.left) - rg.left + pad;
+    const top  = Math.min(r1.top,  r2.top ) - rg.top  + pad;
+    const right= Math.max(r1.left, r2.left) - rg.left + (r2.width - pad);
+    const bottom=Math.max(r1.top,  r2.top ) - rg.top  + (r2.height - pad);
+    winlineEl = document.createElement('div');
+    winlineEl.className = 'ls-winline';
+    winlineEl.style.left = left + 'px';
+    winlineEl.style.top  = top  + 'px';
+    winlineEl.style.width  = (right - left) + 'px';
+    winlineEl.style.height = (bottom - top) + 'px';
+    gridEl.appendChild(winlineEl);
+  }
+  function checkWin(){
+    clearWin();
+    const lines = [];
+    for(let r=0;r<SIZE;r++){ lines.push(Array.from({length:SIZE},(_,c)=> r*SIZE+c)); }
+    for(let c=0;c<SIZE;c++){ lines.push(Array.from({length:SIZE},(_,r)=> r*SIZE+c)); }
+    lines.push(Array.from({length:SIZE},(_,i)=> i*SIZE+i));
+    lines.push(Array.from({length:SIZE},(_,i)=> i*SIZE+(SIZE-1-i)));
+    for(const line of lines){
+      if(line.every(i => state[i].done)){
+        banner.classList.add('show'); drawWinLine(line); return true;
+      }
+    }
+    return false;
+  }
+  function render(){
+    gridEl.querySelectorAll('.ls-cell').forEach(n=>n.remove());
+    clearWin();
+    state.forEach((cell, i) => {
+      const d = document.createElement('div');
+      d.className = 'ls-cell' + (cell.done ? ' is-done' : '');
+      d.dataset.index = i;
+      if(cell.img){
+        const img = document.createElement('div');
+        img.className = 'ls-img';
+        img.style.backgroundImage = `url("${cell.img}")`;
+        d.appendChild(img);
+      }
+      const shade = document.createElement('div'); shade.className = 'ls-shade';
+      const badge = document.createElement('div'); badge.className = 'ls-badge';
+      badge.textContent = (i===midIndex)?'FREE':`#${i+1}`;
+      if(i===midIndex) badge.classList.add('ls-free');
+      const text = document.createElement('div'); text.className = 'ls-text'; text.textContent = cell.text;
+      if(cell.url){
+        const link = document.createElement('a');
+        link.className = 'ls-link'; link.href = cell.url; link.target = '_blank'; link.rel='noopener';
+        link.textContent = cell.url.replace(/^https?:\/\//,'').slice(0,36) + (cell.url.length>36?'…':'');
+        d.appendChild(link);
+      }
+      const done = document.createElement('div'); done.className = 'ls-done'; done.innerHTML = '<div class="ls-check">✔</div>';
+      d.appendChild(shade); d.appendChild(badge); d.appendChild(text); d.appendChild(done);
+      d.addEventListener('click', ()=> openEditor(i));
+      d.addEventListener('dblclick', (e)=>{ e.preventDefault(); toggleDone(i); });
+      gridEl.appendChild(d);
+    });
+    checkWin();
+  }
+  function openEditor(i){
+    selectedIndex = i;
+    const cell = state[i];
+    promptInput.value = cell.text || '';
+    urlThread.value = cell.url || '';
+    urlImage.value = '';
+    fileImage.value = '';
+    doneChk.checked = !!cell.done;
+    modal.classList.add('show');
+  }
+  function closeEditor(){ modal.classList.remove('show'); selectedIndex = null; }
+  function toggleDone(i){
+    state[i].done = !state[i].done || (i===midIndex);
+    saveState(state); render();
+  }
+  function fileToDataURL(file){
+    return new Promise((res, rej)=>{
+      const fr = new FileReader();
+      fr.onload = () => res(fr.result);
+      fr.onerror = rej;
+      fr.readAsDataURL(file);
+    });
+  }
+  saveBtn.addEventListener('click', async ()=>{
+    if(selectedIndex===null) return;
+    const cell = state[selectedIndex];
+    cell.url = urlThread.value.trim() || null;
+    const imgUrl = urlImage.value.trim();
+    if(imgUrl) cell.img = imgUrl;
+    const f = fileImage.files?.[0];
+    if(f){ cell.img = await fileToDataURL(f); }
+    cell.done = doneChk.checked || (selectedIndex===midIndex);
+    saveState(state); render(); closeEditor();
+  });
+  clearBtn.addEventListener('click', ()=>{
+    if(selectedIndex===null) return;
+    state[selectedIndex].img = null; saveState(state); render();
+  });
+  closeBtn.addEventListener('click', closeEditor);
+  function refreshAfterProfileChange(){
+    const loaded = loadState();
+    state = loaded || defaultBoard();
+    saveState(state); render(); listProfiles();
+  }
+  saveProfileBtn.addEventListener('click', refreshAfterProfileChange);
+  loadProfileBtn.addEventListener('click', ()=>{
+    const id = profilesList.value; if(!id) return;
+    profileIdEl.value = id; refreshAfterProfileChange();
+  });
+  deleteProfileBtn.addEventListener('click', ()=>{
+    const id = profilesList.value; if(!id) return;
+    if(!confirm(`Delete saved profile “${id}”? This cannot be undone.`)) return;
+    localStorage.removeItem(STORAGE_PREFIX + id);
+    if(profileIdEl.value === id) profileIdEl.value = '';
+    listProfiles();
+  });
+  const resetBtn = document.getElementById('resetBoard');
+  resetBtn.addEventListener('click', ()=>{
+    if(!confirm('Reset the entire board for this profile?')) return;
+    state = defaultBoard(); saveState(state); render();
+  });
+  // Init
+  listProfiles(); render();
+})();
+</script>
+</body>
+</html>
