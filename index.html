@@ -30,7 +30,7 @@
   }
 
   .ls-wrap{
-    max-width:1100px;
+    max-width:1200px;
     margin:24px auto;
     padding:24px;
     background:var(--bg);
@@ -127,7 +127,7 @@
     background:#0c0f14;
     box-shadow:0 0 0 1px rgba(255,255,255,.03);
     margin:0 auto;
-    max-width:1000px;   /* bigger board */
+    max-width:1100px;   /* wider board */
     width:100%;
   }
   .ls-grid::before{
@@ -324,6 +324,7 @@
     <button class="ls-btn" id="loadProfile">load</button>
     <button class="ls-btn" id="deleteProfile">delete</button>
     <button class="ls-btn save" id="saveProfile">save</button>
+    <button class="ls-btn" id="randomizeBoard">randomize</button>
     <button class="ls-btn" id="resetBoard">reset</button>
   </div>
 
@@ -395,7 +396,7 @@
 (() => {
   const SIZE = 5;
   const MID  = 12;
-  const PREFIX = 'lowSignalBingo_v9_';
+  const PREFIX = 'lowSignalBingo_v10_';
 
   const prompts = [
     "public argument","first kiss (or almost)","broken phone","rain confession",
@@ -424,6 +425,7 @@
   const deleteProfile = document.getElementById('deleteProfile');
   const saveProfile = document.getElementById('saveProfile');
   const resetBoard = document.getElementById('resetBoard');
+  const randomizeBoard = document.getElementById('randomizeBoard');
 
   const confettiEl = document.getElementById('confetti');
 
@@ -621,13 +623,6 @@
     selectedIndex = null;
   }
 
-  function toggleDone(i){
-    state[i].done = !state[i].done;
-    if(i===MID) state[i].done = true;
-    saveStateData();
-    render();
-  }
-
   async function handleSaveSquare(){
     if(selectedIndex===null) return;
     const cell = state[selectedIndex];
@@ -652,7 +647,6 @@
       const fr=new FileReader();
       fr.onload=()=>resolve(fr.result);
       fr.onerror=reject;
-      fr.readAsBytes=reject;
       fr.readAsDataURL(file);
     });
   }
@@ -699,6 +693,24 @@
     saveStateData();
     render();
   });
+
+  randomizeBoard.addEventListener('click', ()=>{
+    if(!confirm('Randomize prompts for this profile? This will clear links, images, and completion.')) return;
+    randomizePrompts();
+  });
+
+  function randomizePrompts(){
+    const shuffled = prompts.slice();
+    // Fisher–Yates
+    for(let i = shuffled.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    shuffled[MID] = 'free space';
+    state = shuffled.map((text,i)=>({text, img:null, url:null, done:i===MID}));
+    saveStateData();
+    render();
+  }
 
   listProfiles();
   render();
