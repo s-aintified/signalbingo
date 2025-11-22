@@ -24,9 +24,9 @@
     padding:0;
     background:#0b0d11;
     color:var(--ink);
-    font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    font:15px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial;
     height:100%;
-    overflow:hidden; /* hide internal scroll; let JCink control outer scroll */
+    overflow:hidden; /* no inner scroll; JCink controls page scroll */
   }
 
   .ls-wrap{
@@ -39,7 +39,7 @@
   }
 
   .ls-logo{
-    font-size:32px;
+    font-size:34px;
     font-weight:900;
     text-transform:uppercase;
     margin:0 0 6px;
@@ -47,18 +47,18 @@
     -webkit-background-clip:text;
     background-clip:text;
     color:transparent;
-    text-align:center;         /* hard center */
+    text-align:center;
   }
 
   .ls-sub{
-    font-size:12px;
+    font-size:13px;
     color:var(--muted);
-    margin-bottom:8px;
-    text-align:center;         /* hard center */
+    margin-bottom:10px;
+    text-align:center;
   }
 
   .ls-controls{
-    margin-top:14px;
+    margin-top:16px;
     display:flex;
     gap:12px;
     flex-wrap:wrap;
@@ -72,7 +72,7 @@
     border-radius:10px;
     padding:8px 10px;
     color:var(--ink);
-    min-width:170px;
+    min-width:180px;
     font-size:13px;
   }
 
@@ -93,24 +93,24 @@
   }
 
   .ls-legend{
-    font-size:12px;
+    font-size:13px;
     color:var(--muted);
-    margin:12px auto 16px;
+    margin:14px auto 18px;
     padding:10px 12px;
     border-radius:10px;
     border:1px solid var(--line);
     background:#10141b;
-    max-width:640px;
+    max-width:680px;
     text-align:center;
   }
 
   .ls-status{
-    font-size:11px;
+    font-size:13px;
     text-transform:uppercase;
     letter-spacing:.12em;
     color:var(--muted);
-    margin-bottom:8px;
-    text-align:center;          /* hard center */
+    margin:12px 0;
+    text-align:center;
   }
   .ls-status.is-bingo{
     color:var(--win);
@@ -121,13 +121,14 @@
     position:relative;
     display:grid;
     grid-template-columns:repeat(5,1fr);
-    gap:12px;
-    padding:14px;
+    gap:16px;
+    padding:18px;
     border-radius:16px;
     background:#0c0f14;
     box-shadow:0 0 0 1px rgba(255,255,255,.03);
     margin:0 auto;
-    max-width:700px;
+    max-width:1000px;   /* bigger board */
+    width:100%;
   }
   .ls-grid::before{
     content:"";
@@ -147,7 +148,7 @@
   .ls-cell{
     position:relative;
     aspect-ratio:1/1;
-    border-radius:12px;
+    border-radius:14px;
     background:#151a21;
     border:2px solid var(--line);
     overflow:hidden;
@@ -162,7 +163,7 @@
     content:"";
     position:absolute;
     inset:-3px;
-    border-radius:12px;
+    border-radius:14px;
     padding:3px;
     background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
     -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
@@ -181,8 +182,8 @@
   .ls-cell.win{
     border-color:var(--win);
     box-shadow:
-      0 0 18px rgba(127,255,212,.7),
-      inset 0 0 14px rgba(127,255,212,.65);
+      0 0 20px rgba(127,255,212,.75),
+      inset 0 0 16px rgba(127,255,212,.7);
   }
   .ls-cell.win::before{
     background:var(--win);
@@ -200,14 +201,14 @@
   .ls-shade{
     position:absolute;
     inset:0;
-    background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.5));
+    background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.55));
   }
   .ls-text{
     position:absolute;
     left:10px;
     right:10px;
-    bottom:36px;
-    font-size:12px;
+    bottom:40px;
+    font-size:14px;
     color:#f5f6fb;
     text-shadow:0 1px 2px rgba(0,0,0,.7);
   }
@@ -216,7 +217,7 @@
     left:10px;
     right:10px;
     bottom:10px;
-    font-size:11px;
+    font-size:12px;
     color:#b8c8ff;
     text-decoration:underline;
     overflow:hidden;
@@ -244,7 +245,7 @@
   }
   .ls-cell.is-done .ls-done{opacity:1;}
   .ls-check{
-    font-size:28px;
+    font-size:30px;
     color:var(--success);
     text-shadow:0 0 12px rgba(109,213,161,.5);
   }
@@ -298,6 +299,15 @@
       transform:translate3d(var(--x,0),110%,0) rotate(360deg);
     }
   }
+
+  @media (max-width:700px){
+    .ls-grid{
+      max-width:100%;
+      gap:10px;
+      padding:12px;
+    }
+    .ls-text{font-size:13px;}
+  }
 </style>
 </head>
 <body>
@@ -305,7 +315,7 @@
 <div class="ls-wrap" id="bingoApp">
   <h1 class="ls-logo">LOW SIGNAL</h1>
   <div class="ls-sub">
-    click a square to edit • check the box to mark it complete • middle-click to quick toggle • center is always free
+    click a square to edit • use the checkbox to mark it complete • center is always free
   </div>
 
   <div class="ls-controls">
@@ -319,7 +329,7 @@
 
   <div class="ls-legend">
     Add a thread link + optional image per square. When you get 5 completed squares in a row
-    (row, column, or diagonal), those squares will glow neon. Screenshot your winning card to redeem for points.
+    (row, column, or diagonal), those squares will glow neon — screenshot your card to redeem points.
   </div>
 
   <div class="ls-status" id="status">no bingo yet</div>
@@ -385,7 +395,7 @@
 (() => {
   const SIZE = 5;
   const MID  = 12;
-  const PREFIX = 'lowSignalBingo_v7_';
+  const PREFIX = 'lowSignalBingo_v9_';
 
   const prompts = [
     "public argument","first kiss (or almost)","broken phone","rain confession",
@@ -419,7 +429,7 @@
 
   let state = loadState() || makeDefault();
   let selectedIndex = null;
-  let hadBingo = false; // track transitions
+  let hadBingo = false;
 
   function currentKey(){
     const id = profileId.value.trim() || 'default';
@@ -588,18 +598,8 @@
       el.appendChild(done);
 
       // Left click = open editor
-      el.addEventListener('click', (evt)=>{
-        if(evt.button === 0){ // left
-          openModal(i);
-        }
-      });
-
-      // Middle click = quick toggle complete
-      el.addEventListener('auxclick', (evt)=>{
-        if(evt.button === 1){ // middle mouse
-          evt.preventDefault();
-          toggleDone(i);
-        }
+      el.addEventListener('click', ()=>{
+        openModal(i);
       });
 
       grid.appendChild(el);
@@ -623,7 +623,7 @@
 
   function toggleDone(i){
     state[i].done = !state[i].done;
-    if(i===MID) state[i].done = true; // free space always done
+    if(i===MID) state[i].done = true;
     saveStateData();
     render();
   }
@@ -652,6 +652,7 @@
       const fr=new FileReader();
       fr.onload=()=>resolve(fr.result);
       fr.onerror=reject;
+      fr.readAsBytes=reject;
       fr.readAsDataURL(file);
     });
   }
