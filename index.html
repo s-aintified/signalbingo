@@ -6,9 +6,9 @@
 <title>LOW SIGNAL — Thread Bingo</title>
 <style>
   :root{
-    --bg:#0f1115; 
-    --card:#161a20; 
-    --ink:#cfd6e1; 
+    --bg:#0f1115;
+    --card:#161a20;
+    --ink:#cfd6e1;
     --muted:#9aa3b2;
     --accent1:#5078D2;
     --accent2:#F58264;
@@ -16,117 +16,262 @@
     --success:#6dd5a1;
     --danger:#d85a5a;
     --line:rgba(255,255,255,.06);
-
-    /* WIN highlight color */
-    --win:#7fffd4; /* aquamarine neon */
+    --win:#7fffd4; /* neon aqua for bingo squares */
   }
 
-  body{margin:0;background:#0b0d11;color:var(--ink);font:14px/1.5 system-ui}
+  body{
+    margin:0;
+    background:#0b0d11;
+    color:var(--ink);
+    font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  }
 
   .ls-wrap{
-    max-width:1100px;margin:24px auto;padding:24px;
-    background:var(--bg);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.4)
+    max-width:1100px;
+    margin:24px auto;
+    padding:24px;
+    background:var(--bg);
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
   }
 
   .ls-logo{
-    font-size:32px;font-weight:900;text-transform:uppercase;
+    font-size:32px;
+    font-weight:900;
+    text-transform:uppercase;
+    margin:0 0 6px;
     background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
-    -webkit-background-clip:text;color:transparent;margin:0 0 8px
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
   }
 
-  .ls-sub{font-size:12px;color:var(--muted)}
+  .ls-sub{
+    font-size:12px;
+    color:var(--muted);
+  }
 
-  /* Inputs / Buttons */
+  .ls-controls{
+    margin-top:14px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+
   .ls-input,.ls-select{
-    background:#10151c;border:1px solid var(--line);border-radius:10px;
-    padding:8px 10px;color:var(--ink);min-width:170px
+    background:#10151c;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:8px 10px;
+    color:var(--ink);
+    min-width:170px;
+    font-size:13px;
   }
-  .ls-btn{background:#1e232b;border:0;color:var(--ink);
-    padding:8px 12px;border-radius:10px;cursor:pointer;font-size:12px}
-  .ls-btn.save{background:#212733;font-weight:700}
 
-  .ls-legend{font-size:12px;color:var(--muted);padding:10px 12px;
-    border:1px solid var(--line);border-radius:10px;margin:12px 0}
+  .ls-btn{
+    background:#1e232b;
+    border:0;
+    color:var(--ink);
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:12px;
+  }
+  .ls-btn:hover{filter:brightness(1.1);}
+  .ls-btn.save{
+    background:#212733;
+    font-weight:700;
+    box-shadow:0 6px 18px rgba(0,0,0,.35);
+  }
 
-  /* Bingo grid */
+  .ls-legend{
+    font-size:12px;
+    color:var(--muted);
+    margin:12px 0 16px;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:#10141b;
+  }
+
+  .ls-status{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .ls-status.is-bingo{
+    color:var(--win);
+    font-weight:700;
+  }
+
   .ls-grid{
     position:relative;
-    display:grid;grid-template-columns:repeat(5,1fr);
-    gap:12px;padding:14px;border-radius:16px;
-    background:#0c0f14;box-shadow:0 0 0 1px rgba(255,255,255,.03)
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    padding:14px;
+    border-radius:16px;
+    background:#0c0f14;
+    box-shadow:0 0 0 1px rgba(255,255,255,.03);
   }
   .ls-grid::before{
-    content:"";position:absolute;inset:-4px;border-radius:18px;
-    background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
+    content:"";
+    position:absolute;
+    inset:-4px;
+    border-radius:18px;
     padding:4px;
-    -webkit-mask:linear-gradient(#000 0 0) content-box,
-                 linear-gradient(#000 0 0);
-    -webkit-mask-composite:xor;mask-composite:exclude;
-    opacity:.6;filter:blur(.7px)
-  }
-
-  /* individual cell */
-  .ls-cell{
-    position:relative;aspect-ratio:1/1;
-    border-radius:12px;
-    background:#151a21;cursor:pointer;
-    border:2px solid var(--line); /* thicker */
-    overflow:hidden;
-  }
-
-  .ls-cell::before{
-    content:"";position:absolute;inset:-3px;border-radius:12px;
     background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    opacity:.6;
+    filter:blur(.7px);
+    pointer-events:none;
+  }
+
+  .ls-cell{
+    position:relative;
+    aspect-ratio:1/1;
+    border-radius:12px;
+    background:#151a21;
+    border:2px solid var(--line);
+    overflow:hidden;
+    cursor:pointer;
+    transition:border-color .16s,box-shadow .16s,transform .08s;
+  }
+  .ls-cell:hover{
+    transform:translateY(-1px);
+  }
+
+  /* base glow */
+  .ls-cell::before{
+    content:"";
+    position:absolute;
+    inset:-3px;
+    border-radius:12px;
     padding:3px;
-    -webkit-mask:linear-gradient(#000 0 0) content-box,
-                 linear-gradient(#000 0 0);
-    -webkit-mask-composite:xor;mask-composite:exclude;
-    opacity:.5;filter:blur(.4px)
+    background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    opacity:.45;
+    filter:blur(.4px);
+    pointer-events:none;
+  }
+  .ls-cell.is-done::before{
+    opacity:.75;
+    filter:blur(.7px);
   }
 
-  /* WIN CELLS special glow — new */
+  /* BINGO squares extra highlight */
   .ls-cell.win{
-    box-shadow:0 0 18px var(--win), inset 0 0 14px var(--win);
-    border-color:var(--win) !important;
+    border-color:var(--win);
+    box-shadow:
+      0 0 18px rgba(127,255,212,.7),
+      inset 0 0 14px rgba(127,255,212,.65);
   }
-  .ls-cell.win::before{opacity:.9 !important;filter:blur(.7px);background:var(--win)}
-
-  .ls-img{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.95}
-  .ls-shade{position:absolute;inset:0;background:rgba(0,0,0,.35)}
-  .ls-text{position:absolute;left:10px;right:10px;bottom:36px;font-size:12px;color:#fff}
-  .ls-link{position:absolute;left:10px;right:10px;bottom:10px;font-size:11px;color:#b8c8ff;text-decoration:underline}
-  .ls-badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.6);padding:4px 8px;border-radius:8px;font-size:11px;color:#fff}
-  .ls-done{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.3);opacity:0;transition:.2s}
-  .ls-cell.is-done .ls-done{opacity:1}
-  .ls-check{font-size:28px;color:var(--success)}
-
-  /* win line */
-  .ls-winline{
-    position:absolute;pointer-events:none;border-radius:10px;
-    box-shadow:0 0 0 3px var(--win) inset,0 0 20px var(--win)
+  .ls-cell.win::before{
+    background:var(--win);
+    opacity:.95;
+    filter:blur(.7px);
   }
 
-  /* Modal */
-  .ls-modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.5);z-index:999}
-  .ls-modal.show{display:grid}
-  .ls-card{background:#161a20;padding:20px;border-radius:14px;border:1px solid var(--line);width:500px;max-width:90%}
-  .ls-row{display:flex;gap:10px;margin-bottom:10px}
-  .ls-mini{font-size:11px;padding:7px 9px;border-radius:8px}
-  .ls-danger{background:linear-gradient(90deg,#6b2a2a,#d85a5a);color:#fff}
-  .ls-success{background:linear-gradient(90deg,#2b694a,#6dd5a1);color:#000}
+  .ls-img{
+    position:absolute;
+    inset:0;
+    background-size:cover;
+    background-position:center;
+    opacity:.9;
+  }
+  .ls-shade{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.5));
+  }
+  .ls-text{
+    position:absolute;
+    left:10px;
+    right:10px;
+    bottom:36px;
+    font-size:12px;
+    color:#f5f6fb;
+    text-shadow:0 1px 2px rgba(0,0,0,.7);
+  }
+  .ls-link{
+    position:absolute;
+    left:10px;
+    right:10px;
+    bottom:10px;
+    font-size:11px;
+    color:#b8c8ff;
+    text-decoration:underline;
+    overflow:hidden;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+  .ls-badge{
+    position:absolute;
+    top:8px;
+    left:8px;
+    padding:4px 8px;
+    font-size:11px;
+    border-radius:8px;
+    background:rgba(0,0,0,.65);
+    color:#fff;
+  }
+  .ls-done{
+    position:absolute;
+    inset:0;
+    display:grid;
+    place-items:center;
+    background:rgba(0,0,0,.35);
+    opacity:0;
+    transition:opacity .16s;
+  }
+  .ls-cell.is-done .ls-done{opacity:1;}
+  .ls-check{
+    font-size:28px;
+    color:var(--success);
+    text-shadow:0 0 12px rgba(109,213,161,.5);
+  }
 
+  /* modal */
+  .ls-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    display:none;
+    place-items:center;
+    z-index:9999;
+  }
+  .ls-modal.show{display:grid;}
+  .ls-card{
+    width:min(520px,90vw);
+    background:var(--card);
+    border-radius:14px;
+    border:1px solid var(--line);
+    padding:18px;
+    box-shadow:0 20px 50px rgba(0,0,0,.7);
+  }
+  .ls-card h3{margin:0 0 10px;font-size:16px;}
+  .ls-row{display:flex;gap:10px;margin-bottom:10px;}
+  .ls-row>*{flex:1;}
+  .ls-mini{font-size:11px;padding:7px 9px;border-radius:8px;}
+  .ls-danger{background:linear-gradient(90deg,#6b2a2a,#d85a5a);color:#fff;}
+  .ls-success{background:linear-gradient(90deg,#2b694a,#6dd5a1);color:#000;}
 </style>
 </head>
-
 <body>
 
 <div class="ls-wrap" id="bingoApp">
-
   <h1 class="ls-logo">LOW SIGNAL</h1>
-  <div class="ls-sub">single-click = edit • double-click = complete • 5×5 board • center is free</div>
+  <div class="ls-sub">single-click = edit • double-click = toggle complete • 5×5 board • center is free</div>
 
-  <div class="ls-controls" style="margin-top:12px;display:flex;gap:14px;flex-wrap:wrap;">
-    <input class="ls-input" id="profileId" placeholder="profile id">
+  <div class="ls-controls">
+    <input class="ls-input" id="profileId" placeholder="profile id (e.g. yana-main / character)">
     <select class="ls-select" id="profilesList"></select>
     <button class="ls-btn" id="loadProfile">load</button>
     <button class="ls-btn" id="deleteProfile">delete</button>
@@ -134,261 +279,326 @@
     <button class="ls-btn" id="resetBoard">reset</button>
   </div>
 
-  <div class="ls-legend">Add a thread link + optional image per square. Win lines will glow.</div>
+  <div class="ls-legend">
+    Add a thread link + optional image per square. When you hit 5 in a row (row, column, or diagonal),
+    those squares will glow in neon aqua.
+  </div>
+
+  <div class="ls-status" id="status">no bingo yet</div>
 
   <div class="ls-grid" id="grid"></div>
-
 </div>
 
-<!-- Modal -->
+<!-- modal -->
 <div class="ls-modal" id="modal">
   <div class="ls-card">
-    <h3>Edit Square</h3>
-    <div class="ls-row"><input class="ls-input" id="promptInput" disabled></div>
-    <div class="ls-row"><input class="ls-input" id="urlThread" placeholder="thread link"></div>
+    <h3>Edit square</h3>
     <div class="ls-row">
-      <input class="ls-input" id="urlImage" placeholder="image URL">
+      <input class="ls-input" id="promptInput" disabled>
+    </div>
+    <div class="ls-row">
+      <input class="ls-input" id="urlThread" placeholder="thread link (URL)">
+    </div>
+    <div class="ls-row">
+      <input class="ls-input" id="urlImage" placeholder="image URL (optional)">
       <input type="file" class="ls-input" id="fileImage" accept="image/*">
     </div>
-
-    <label><input type="checkbox" id="doneChk"> complete</label>
-
-    <div class="ls-row" style="justify-content:flex-end;margin-top:14px;">
+    <label style="font-size:12px;">
+      <input type="checkbox" id="doneChk"> mark this square complete
+    </label>
+    <div class="ls-row" style="justify-content:flex-end;margin-top:12px;">
       <button class="ls-btn ls-mini ls-danger" id="clearImage">remove image</button>
       <button class="ls-btn ls-mini" id="closeModal">close</button>
       <button class="ls-btn ls-mini ls-success" id="saveSquare">save</button>
     </div>
-
   </div>
 </div>
 
 <script>
-/* SAME JS as before,
-   EXCEPT: banner removed, win squares get "win" class */
-
+/* ===== THEME PICKING BY MEMBERGROUP / URL ===== */
 (function(){
-  const THEMES={ /* your membergroups */ 
-    'g-2':['#5078D2','#F58264','#FFD787'], 
-    'g-4':['#8A5A16','#DFA546','#F8CC76'], 
-    'g-6':['#A13D5B','#E8718A','#FFA0B2'], 
-    'g-7':['#161B2E','#353E58','#616B89'], 
-    'g-8':['#3D338D','#7362E8','#9D8CFF'], 
-    'g-9':['#823424','#BF5C40','#E89A65'], 
-    'g-10':['#00666D','#289DA5','#5AD2DC'], 
-    'g-11':['#360000','#760A0A','#AA2727'], 
-    'g-12':['#BEAF96','#E6DCC8','#FFFBEF'], 
-    'g-13':['#856CB6','#C1AAE8','#DFD0FC'], 
-    'g-14':['#78645A','#AA917D','#E1CDB9'], 
-    'g-16':['#683616','#B55F2B','#E89952']
+  const THEMES={
+    'g-2':['#5078D2','#F58264','#FFD787'],     // Guest
+    'g-4':['#8A5A16','#DFA546','#F8CC76'],     // Staff
+    'g-6':['#A13D5B','#E8718A','#FFA0B2'],     // Romance
+    'g-7':['#161B2E','#353E58','#616B89'],     // Mystery
+    'g-8':['#3D338D','#7362E8','#9D8CFF'],     // Fantasy
+    'g-9':['#823424','#BF5C40','#E89A65'],     // Drama
+    'g-10':['#00666D','#289DA5','#5AD2DC'],    // Sci-Fi
+    'g-11':['#360000','#760A0A','#AA2727'],    // Horror
+    'g-12':['#BEAF96','#E6DCC8','#FFFBEF'],    // Comedy
+    'g-13':['#856CB6','#C1AAE8','#DFD0FC'],    // Tragedy
+    'g-14':['#78645A','#AA917D','#E1CDB9'],    // Slice of Life
+    'g-16':['#683616','#B55F2B','#E89952']     // Thriller
   };
 
-  const qs=new URLSearchParams(location.search);
-  let key=qs.get('theme');
+  const params=new URLSearchParams(location.search);
+  const urlKey=params.get('theme');
   const bodyKey=[...document.body.classList].find(c=>THEMES[c]);
-  if(!key||!THEMES[key]) key=bodyKey||'g-2';
+  const key=(urlKey && THEMES[urlKey]) ? urlKey : (bodyKey || 'g-2');
+
   const [a,b,c]=THEMES[key];
   document.documentElement.style.setProperty('--accent1',a);
   document.documentElement.style.setProperty('--accent2',b);
   document.documentElement.style.setProperty('--accent3',c);
+})();
 
-  const SIZE=5;
-  const mid=12;
-  const PREFIX='lowSignalBingo_v3_';
+/* ===== BINGO LOGIC (no lines, just glowing win cells) ===== */
+(() => {
+  const SIZE = 5;
+  const MID  = 12; // center index in 0..24
+  const PREFIX = 'lowSignalBingo_v4_';
 
-  const prompts=[
+  const prompts = [
     "public argument","first kiss (or almost)","broken phone","rain confession",
     "caught lying","fake apology","late-night drive","crime of opportunity",
     "soft domestic","unexpected softness","wrong person saw","rivals to allies",
     "free space","stolen glance","self-sabotage","petty revenge",
     "drunk honesty","found footage","unreliable narration","secret exposed",
-    "we shouldn’t be here","left on read","make a wish","meet messy","burn it down"
+    "we shouldn’t be here","left on read","make a wish","messy meet-cute","burn it down"
   ];
 
-  const grid=document.getElementById('grid');
-  const modal=document.getElementById('modal');
-  const promptInput=document.getElementById('promptInput');
-  const urlThread=document.getElementById('urlThread');
-  const urlImage=document.getElementById('urlImage');
-  const fileImage=document.getElementById('fileImage');
-  const doneChk=document.getElementById('doneChk');
-  const clearBtn=document.getElementById('clearImage');
-  const closeBtn=document.getElementById('closeModal');
-  const saveSquare=document.getElementById('saveSquare');
+  const grid = document.getElementById('grid');
+  const statusEl = document.getElementById('status');
+  const modal = document.getElementById('modal');
+  const promptInput = document.getElementById('promptInput');
+  const urlThread = document.getElementById('urlThread');
+  const urlImage = document.getElementById('urlImage');
+  const fileImage = document.getElementById('fileImage');
+  const doneChk = document.getElementById('doneChk');
+  const clearImage = document.getElementById('clearImage');
+  const closeModal = document.getElementById('closeModal');
+  const saveSquare = document.getElementById('saveSquare');
 
-  const profileId=document.getElementById('profileId');
-  const profilesList=document.getElementById('profilesList');
-  const loadProfile=document.getElementById('loadProfile');
-  const deleteProfile=document.getElementById('deleteProfile');
-  const saveProfile=document.getElementById('saveProfile');
-  const resetBoard=document.getElementById('resetBoard');
+  const profileId = document.getElementById('profileId');
+  const profilesList = document.getElementById('profilesList');
+  const loadProfile = document.getElementById('loadProfile');
+  const deleteProfile = document.getElementById('deleteProfile');
+  const saveProfile = document.getElementById('saveProfile');
+  const resetBoard = document.getElementById('resetBoard');
 
-  function defaultBoard(){
-    let list=[...prompts];
-    let chosen=list.slice(0,SIZE*SIZE);
-    chosen[mid]="free space";
-    return chosen.map((t,i)=>({text:t,img:null,url:null,done:i===mid}));
+  let state = loadState() || makeDefault();
+  let selectedIndex = null;
+
+  /* storage helpers */
+  function currentKey(){
+    const id = profileId.value.trim() || 'default';
+    return PREFIX + id;
   }
-
-  function keyname(){return PREFIX+(profileId.value||"default")}
-  function saveState(s){localStorage.setItem(keyname(),JSON.stringify(s))}
-  function loadState(){try{return JSON.parse(localStorage.getItem(keyname()))}catch{return null}}
-
-  let state=loadState()||defaultBoard();
-  let selected=null;
-  let winline=null;
+  function saveStateData(){ localStorage.setItem(currentKey(), JSON.stringify(state)); }
+  function loadState(key){
+    const k = key || currentKey();
+    try{
+      const raw = localStorage.getItem(k);
+      return raw ? JSON.parse(raw) : null;
+    }catch{
+      return null;
+    }
+  }
+  function makeDefault(){
+    const list = prompts.slice(0, SIZE*SIZE);
+    list[MID] = 'free space';
+    return list.map((text,i)=>({text, img:null, url:null, done:i===MID}));
+  }
 
   function listProfiles(){
-    profilesList.innerHTML="";
-    let keys=Object.keys(localStorage).filter(k=>k.startsWith(PREFIX));
+    profilesList.innerHTML = '';
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith(PREFIX));
+    if(!keys.length){
+      const opt=document.createElement('option');
+      opt.value=''; opt.textContent='(none yet)';
+      profilesList.appendChild(opt);
+      return;
+    }
     keys.forEach(k=>{
-      let id=k.replace(PREFIX,"");
-      let o=document.createElement('option');
-      o.value=id;o.textContent=id;
-      profilesList.append(o);
+      const id=k.replace(PREFIX,'');
+      const opt=document.createElement('option');
+      opt.value=id; opt.textContent=id;
+      profilesList.appendChild(opt);
     });
   }
 
-  function clearWin(){
-    if(winline){winline.remove();winline=null}
-    [...grid.children].forEach(c=>c.classList.remove('win'));
-  }
+  /* compute which indices are in a winning line */
+  function winningSet(){
+    const wins = new Set();
+    const lines = [];
 
-  function drawWin(cells){
-    clearWin();
-    cells.forEach(i=>{
-      const el=grid.children[i];
-      if(el) el.classList.add('win');
-    });
-    const first=grid.children[cells[0]];
-    const last=grid.children[cells[cells.length-1]];
-    winline=document.createElement('div');
-    winline.className='ls-winline';
-    winline.style.left=(first.offsetLeft+6)+'px';
-    winline.style.top=(first.offsetTop+6)+'px';
-    winline.style.width=(last.offsetLeft-first.offsetLeft+last.offsetWidth-12)+'px';
-    winline.style.height=(last.offsetTop-first.offsetTop+last.offsetHeight-12)+'px';
-    grid.appendChild(winline);
-  }
-
-  function checkWin(){
-    const lines=[];
-    for(let r=0;r<5;r++) lines.push([r*5,r*5+1,r*5+2,r*5+3,r*5+4]);
-    for(let c=0;c<5;c++) lines.push([c,c+5,c+10,c+15,c+20]);
+    // rows
+    for(let r=0;r<SIZE;r++){
+      lines.push([r*SIZE, r*SIZE+1, r*SIZE+2, r*SIZE+3, r*SIZE+4]);
+    }
+    // cols
+    for(let c=0;c<SIZE;c++){
+      lines.push([c, c+SIZE, c+2*SIZE, c+3*SIZE, c+4*SIZE]);
+    }
+    // diagonals
     lines.push([0,6,12,18,24]);
     lines.push([4,8,12,16,20]);
 
+    let any = false;
     for(const line of lines){
-      if(line.every(i=>state[i].done)){ drawWin(line); return; }
+      if(line.every(i => state[i].done)){
+        any = true;
+        line.forEach(i => wins.add(i));
+      }
     }
-    clearWin();
+
+    statusEl.textContent = any ? 'bingo' : 'no bingo yet';
+    statusEl.classList.toggle('is-bingo', any);
+    return wins;
   }
 
   function render(){
-    grid.innerHTML="";
-    clearWin();
+    const winSet = winningSet();
+    grid.innerHTML = '';
 
-    state.forEach((cell,i)=>{
-      const d=document.createElement('div');
-      d.className="ls-cell"+(cell.done?" is-done":"");
+    state.forEach((cell, i)=>{
+      const el = document.createElement('div');
+      let cls = 'ls-cell';
+      if(cell.done) cls += ' is-done';
+      if(winSet.has(i)) cls += ' win';
+      el.className = cls;
 
       if(cell.img){
-        const img=document.createElement('div');
-        img.className="ls-img";
-        img.style.backgroundImage=`url('${cell.img}')`;
-        d.appendChild(img);
+        const img = document.createElement('div');
+        img.className='ls-img';
+        img.style.backgroundImage = `url("${cell.img}")`;
+        el.appendChild(img);
       }
 
-      const shade=document.createElement('div'); shade.className='ls-shade';
-      const text=document.createElement('div'); text.className='ls-text'; text.textContent=cell.text;
-      const badge=document.createElement('div'); badge.className='ls-badge'; badge.textContent=(i===mid?"FREE":`#${i+1}`);
+      const shade = document.createElement('div');
+      shade.className='ls-shade';
+      el.appendChild(shade);
+
+      const badge = document.createElement('div');
+      badge.className='ls-badge';
+      badge.textContent = (i===MID ? 'FREE' : `#${i+1}`);
+      el.appendChild(badge);
+
+      const text = document.createElement('div');
+      text.className='ls-text';
+      text.textContent = cell.text;
+      el.appendChild(text);
 
       if(cell.url){
-        const link=document.createElement('a');
-        link.className='ls-link'; link.href=cell.url; link.target="_blank";
-        link.textContent=cell.url.replace(/^https?:\/\//,"").slice(0,30);
-        d.appendChild(link);
+        const link = document.createElement('a');
+        link.className='ls-link';
+        link.href = cell.url;
+        link.target='_blank';
+        link.rel='noopener';
+        link.textContent = cell.url.replace(/^https?:\/\//,'').slice(0,30) + (cell.url.length>30?'…':'');
+        el.appendChild(link);
       }
 
-      const done=document.createElement('div'); done.className='ls-done';
-      done.innerHTML="<div class='ls-check'>✔</div>";
+      const done = document.createElement('div');
+      done.className='ls-done';
+      done.innerHTML = "<div class='ls-check'>✔</div>";
+      el.appendChild(done);
 
-      d.append(shade,badge,text,done);
+      el.addEventListener('click', ()=> openModal(i));
+      el.addEventListener('dblclick', (e)=>{
+        e.preventDefault();
+        toggleDone(i);
+      });
 
-      d.addEventListener('click',()=>openEditor(i));
-      d.addEventListener('dblclick',(e)=>{e.preventDefault();toggle(i)});
-
-      grid.appendChild(d);
+      grid.appendChild(el);
     });
-
-    checkWin();
   }
 
-  function openEditor(i){
-    selected=i;
-    const cell=state[i];
-    promptInput.value=cell.text;
-    urlThread.value=cell.url||"";
-    urlImage.value="";
-    fileImage.value="";
-    doneChk.checked=cell.done;
+  function openModal(i){
+    selectedIndex = i;
+    const cell = state[i];
+    promptInput.value = cell.text;
+    urlThread.value = cell.url || '';
+    urlImage.value = '';
+    fileImage.value = '';
+    doneChk.checked = !!cell.done;
     modal.classList.add('show');
   }
-  function closeEditor(){modal.classList.remove('show');selected=null}
-  function toggle(i){
-    state[i].done=!state[i].done;
-    if(i===mid) state[i].done=true;
-    saveState(state);render();
+  function closeEditor(){
+    modal.classList.remove('show');
+    selectedIndex = null;
+  }
+
+  function toggleDone(i){
+    state[i].done = !state[i].done;
+    if(i===MID) state[i].done = true; // free stays completed
+    saveStateData();
+    render();
   }
 
   function fileToDataURL(file){
-    return new Promise((res,rej)=>{
-      const f=new FileReader();
-      f.onload=()=>res(f.result);
-      f.onerror=rej;
-      f.readAsDataURL(file);
+    return new Promise((resolve,reject)=>{
+      const fr=new FileReader();
+      fr.onload=()=>resolve(fr.result);
+      fr.onerror=reject;
+      fr.readAsDataURL(file);
     });
   }
 
-  saveSquare.addEventListener('click',async()=>{
-    if(selected===null)return;
-    const c=state[selected];
-    c.url=urlThread.value.trim()||null;
-    if(urlImage.value) c.img=urlImage.value.trim();
-    if(fileImage.files[0]) c.img=await fileToDataURL(fileImage.files[0]);
-    c.done=doneChk.checked||(selected===mid);
-    saveState(state);render();closeEditor();
+  saveSquare.addEventListener('click', async ()=>{
+    if(selectedIndex===null) return;
+    const cell = state[selectedIndex];
+    cell.url = urlThread.value.trim() || null;
+
+    const imgUrl = urlImage.value.trim();
+    if(imgUrl) cell.img = imgUrl;
+
+    if(fileImage.files && fileImage.files[0]){
+      cell.img = await fileToDataURL(fileImage.files[0]);
+    }
+
+    cell.done = doneChk.checked || (selectedIndex===MID);
+    saveStateData();
+    render();
+    closeEditor();
   });
 
-  clearBtn.addEventListener('click',()=>{
-    if(selected===null)return;
-    state[selected].img=null; saveState(state);render();
+  clearImage.addEventListener('click', ()=>{
+    if(selectedIndex===null) return;
+    state[selectedIndex].img = null;
+    saveStateData();
+    render();
   });
+  closeModal.addEventListener('click', closeEditor);
 
-  closeBtn.addEventListener('click',closeEditor);
-
-  saveProfile.addEventListener('click',()=>{
-    saveState(state);listProfiles();
-  });
-  loadProfile.addEventListener('click',()=>{
-    if(profilesList.value){profileId.value=profilesList.value;}
-    state=loadState()||defaultBoard();
-    saveState(state);render();
-  });
-  deleteProfile.addEventListener('click',()=>{
-    if(!profilesList.value)return;
-    localStorage.removeItem(PREFIX+profilesList.value);
-    if(profileId.value===profilesList.value) profileId.value="";
+  saveProfile.addEventListener('click', ()=>{
+    saveStateData();
     listProfiles();
   });
-  resetBoard.addEventListener('click',()=>{
-    if(!confirm("Reset board?"))return;
-    state=defaultBoard(); saveState(state);render();
+
+  loadProfile.addEventListener('click', ()=>{
+    const id = profilesList.value;
+    if(!id) return;
+    profileId.value = id;
+    const loaded = loadState(PREFIX+id);
+    state = loaded || makeDefault();
+    saveStateData();
+    render();
+  });
+
+  deleteProfile.addEventListener('click', ()=>{
+    const id = profilesList.value;
+    if(!id) return;
+    if(!confirm(`Delete saved profile "${id}"?`)) return;
+    localStorage.removeItem(PREFIX+id);
+    if(profileId.value === id) profileId.value = '';
+    listProfiles();
+    state = makeDefault();
+    saveStateData();
+    render();
+  });
+
+  resetBoard.addEventListener('click', ()=>{
+    if(!confirm('Reset board for this profile?')) return;
+    state = makeDefault();
+    saveStateData();
+    render();
   });
 
   listProfiles();
   render();
 })();
 </script>
-
 </body>
 </html>
