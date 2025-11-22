@@ -146,7 +146,6 @@
     transform:translateY(-1px);
   }
 
-  /* base glow */
   .ls-cell::before{
     content:"";
     position:absolute;
@@ -238,7 +237,6 @@
     text-shadow:0 0 12px rgba(109,213,161,.5);
   }
 
-  /* modal */
   .ls-modal{
     position:fixed;
     inset:0;
@@ -268,10 +266,12 @@
 
 <div class="ls-wrap" id="bingoApp">
   <h1 class="ls-logo">LOW SIGNAL</h1>
-  <div class="ls-sub">single-click = edit • double-click = toggle complete • 5×5 board • center is free</div>
+  <div class="ls-sub">
+    click a square to edit • use the checkbox to mark it complete • center is always free
+  </div>
 
   <div class="ls-controls">
-    <input class="ls-input" id="profileId" placeholder="profile id (e.g. alias-main / character)">
+    <input class="ls-input" id="profileId" placeholder="profile id (e.g. yana-main / character)">
     <select class="ls-select" id="profilesList"></select>
     <button class="ls-btn" id="loadProfile">load</button>
     <button class="ls-btn" id="deleteProfile">delete</button>
@@ -280,8 +280,8 @@
   </div>
 
   <div class="ls-legend">
-    Add a thread link + optional image per square. When you hit 5 in a row (row, column, or diagonal),
-    those squares will glow in neon aqua.
+    Add a thread link + optional image per square. When you hit 5 completed squares in a row
+    (row, column, or diagonal), those squares will glow neon.
   </div>
 
   <div class="ls-status" id="status">no bingo yet</div>
@@ -315,7 +315,7 @@
 </div>
 
 <script>
-/* ===== THEME PICKING BY MEMBERGROUP / URL ===== */
+/* ===== THEME BY MEMBERGROUP/URL ===== */
 (function(){
   const THEMES={
     'g-2':['#5078D2','#F58264','#FFD787'],     // Guest
@@ -331,23 +331,21 @@
     'g-14':['#78645A','#AA917D','#E1CDB9'],    // Slice of Life
     'g-16':['#683616','#B55F2B','#E89952']     // Thriller
   };
-
   const params=new URLSearchParams(location.search);
   const urlKey=params.get('theme');
   const bodyKey=[...document.body.classList].find(c=>THEMES[c]);
   const key=(urlKey && THEMES[urlKey]) ? urlKey : (bodyKey || 'g-2');
-
   const [a,b,c]=THEMES[key];
   document.documentElement.style.setProperty('--accent1',a);
   document.documentElement.style.setProperty('--accent2',b);
   document.documentElement.style.setProperty('--accent3',c);
 })();
 
-/* ===== BINGO LOGIC (no lines, just glowing win cells) ===== */
+/* ===== BINGO LOGIC (click to edit, checkbox for complete) ===== */
 (() => {
   const SIZE = 5;
-  const MID  = 12; // center index in 0..24
-  const PREFIX = 'lowSignalBingo_v4_';
+  const MID  = 12;
+  const PREFIX = 'lowSignalBingo_v5_';
 
   const prompts = [
     "public argument","first kiss (or almost)","broken phone","rain confession",
@@ -380,7 +378,6 @@
   let state = loadState() || makeDefault();
   let selectedIndex = null;
 
-  /* storage helpers */
   function currentKey(){
     const id = profileId.value.trim() || 'default';
     return PREFIX + id;
@@ -391,9 +388,7 @@
     try{
       const raw = localStorage.getItem(k);
       return raw ? JSON.parse(raw) : null;
-    }catch{
-      return null;
-    }
+    }catch{return null;}
   }
   function makeDefault(){
     const list = prompts.slice(0, SIZE*SIZE);
@@ -418,28 +413,22 @@
     });
   }
 
-  /* compute which indices are in a winning line */
   function winningSet(){
     const wins = new Set();
     const lines = [];
 
-    // rows
-    for(let r=0;r<SIZE;r++){
-      lines.push([r*SIZE, r*SIZE+1, r*SIZE+2, r*SIZE+3, r*SIZE+4]);
-    }
-    // cols
-    for(let c=0;c<SIZE;c++){
-      lines.push([c, c+SIZE, c+2*SIZE, c+3*SIZE, c+4*SIZE]);
-    }
-    // diagonals
+    for(let r=0;r<SIZE;r++)
+      lines.push([r*SIZE,r*SIZE+1,r*SIZE+2,r*SIZE+3,r*SIZE+4]);
+    for(let c=0;c<SIZE;c++)
+      lines.push([c,c+SIZE,c+2*SIZE,c+3*SIZE,c+4*SIZE]);
     lines.push([0,6,12,18,24]);
     lines.push([4,8,12,16,20]);
 
-    let any = false;
+    let any=false;
     for(const line of lines){
-      if(line.every(i => state[i].done)){
-        any = true;
-        line.forEach(i => wins.add(i));
+      if(line.every(i=>state[i].done)){
+        any=true;
+        line.forEach(i=>wins.add(i));
       }
     }
 
@@ -496,10 +485,6 @@
       el.appendChild(done);
 
       el.addEventListener('click', ()=> openModal(i));
-      el.addEventListener('dblclick', (e)=>{
-        e.preventDefault();
-        toggleDone(i);
-      });
 
       grid.appendChild(el);
     });
@@ -522,9 +507,28 @@
 
   function toggleDone(i){
     state[i].done = !state[i].done;
-    if(i===MID) state[i].done = true; // free stays completed
+    if(i===MID) state[i].done = true;
     saveStateData();
     render();
+  }
+
+  async function handleSaveSquare(){
+    if(selectedIndex===null) return;
+    const cell = state[selectedIndex];
+    cell.url = urlThread.value.trim() || null;
+
+    const imgUrl = urlImage.value.trim();
+    if(imgUrl) cell.img = imgUrl;
+
+    if(fileImage.files && fileImage.files[0]){
+      const fileImageData = await fileToDataURL(fileImage.files[0]);
+      cell.img = fileImageData;
+    }
+
+    cell.done = doneChk.checked || (selectedIndex===MID);
+    saveStateData();
+    render();
+    closeEditor();
   }
 
   function fileToDataURL(file){
@@ -536,24 +540,7 @@
     });
   }
 
-  saveSquare.addEventListener('click', async ()=>{
-    if(selectedIndex===null) return;
-    const cell = state[selectedIndex];
-    cell.url = urlThread.value.trim() || null;
-
-    const imgUrl = urlImage.value.trim();
-    if(imgUrl) cell.img = imgUrl;
-
-    if(fileImage.files && fileImage.files[0]){
-      cell.img = await fileToDataURL(fileImage.files[0]);
-    }
-
-    cell.done = doneChk.checked || (selectedIndex===MID);
-    saveStateData();
-    render();
-    closeEditor();
-  });
-
+  saveSquare.addEventListener('click', handleSaveSquare);
   clearImage.addEventListener('click', ()=>{
     if(selectedIndex===null) return;
     state[selectedIndex].img = null;
@@ -582,7 +569,7 @@
     if(!id) return;
     if(!confirm(`Delete saved profile "${id}"?`)) return;
     localStorage.removeItem(PREFIX+id);
-    if(profileId.value === id) profileId.value = '';
+    if(profileId.value === id) profileId.value='';
     listProfiles();
     state = makeDefault();
     saveStateData();
