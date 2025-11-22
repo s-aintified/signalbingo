@@ -250,6 +250,30 @@
     text-shadow:0 0 12px rgba(109,213,161,.5);
   }
 
+  /* tooltip bubble inside each cell */
+  .ls-tip{
+    position:absolute;
+    left:10px;
+    right:10px;
+    top:30px;
+    padding:6px 7px;
+    font-size:11px;
+    line-height:1.4;
+    background:rgba(3,6,12,.92);
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,.08);
+    color:#e5e9f5;
+    opacity:0;
+    transform:translateY(-4px);
+    pointer-events:none;
+    transition:opacity .15s ease, transform .15s ease;
+    z-index:5;
+  }
+  .ls-cell:hover .ls-tip{
+    opacity:1;
+    transform:translateY(0);
+  }
+
   /* Modal */
   .ls-modal{
     position:fixed;
@@ -639,9 +663,7 @@
       if(winSet.has(i)) cls += ' win';
       el.className = cls;
 
-      // tooltip hover = description
       const hoverDesc = cell.desc || promptDescMap[cell.text] || cell.text;
-      el.title = hoverDesc;
 
       if(cell.img){
         const img = document.createElement('div');
@@ -673,6 +695,11 @@
         link.textContent = cell.url.replace(/^https?:\/\//,'').slice(0,30) + (cell.url.length>30?'…':'');
         el.appendChild(link);
       }
+
+      const tip = document.createElement('div');
+      tip.className = 'ls-tip';
+      tip.textContent = hoverDesc;
+      el.appendChild(tip);
 
       const done = document.createElement('div');
       done.className='ls-done';
