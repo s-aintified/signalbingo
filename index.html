@@ -26,7 +26,7 @@
     color:var(--ink);
     font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial;
     height:100%;
-    overflow:hidden; /* hide internal scroll; let JCink control it */
+    overflow:hidden; /* hide internal scroll; let JCink control outer scroll */
   }
 
   .ls-wrap{
@@ -36,7 +36,6 @@
     background:var(--bg);
     border-radius:16px;
     box-shadow:0 10px 30px rgba(0,0,0,.4);
-    text-align:center; /* center header + status */
   }
 
   .ls-logo{
@@ -48,12 +47,14 @@
     -webkit-background-clip:text;
     background-clip:text;
     color:transparent;
+    text-align:center;         /* hard center */
   }
 
   .ls-sub{
     font-size:12px;
     color:var(--muted);
     margin-bottom:8px;
+    text-align:center;         /* hard center */
   }
 
   .ls-controls{
@@ -100,6 +101,7 @@
     border:1px solid var(--line);
     background:#10141b;
     max-width:640px;
+    text-align:center;
   }
 
   .ls-status{
@@ -108,6 +110,7 @@
     letter-spacing:.12em;
     color:var(--muted);
     margin-bottom:8px;
+    text-align:center;          /* hard center */
   }
   .ls-status.is-bingo{
     color:var(--win);
@@ -302,7 +305,7 @@
 <div class="ls-wrap" id="bingoApp">
   <h1 class="ls-logo">LOW SIGNAL</h1>
   <div class="ls-sub">
-    click a square to edit • check the box to mark it complete • center is always free
+    click a square to edit • check the box to mark it complete • middle-click to quick toggle • center is always free
   </div>
 
   <div class="ls-controls">
@@ -316,7 +319,7 @@
 
   <div class="ls-legend">
     Add a thread link + optional image per square. When you get 5 completed squares in a row
-    (row, column, or diagonal), those squares will glow neon and confetti will rain.
+    (row, column, or diagonal), those squares will glow neon. Screenshot your winning card to redeem for points.
   </div>
 
   <div class="ls-status" id="status">no bingo yet</div>
@@ -382,7 +385,7 @@
 (() => {
   const SIZE = 5;
   const MID  = 12;
-  const PREFIX = 'lowSignalBingo_v6_';
+  const PREFIX = 'lowSignalBingo_v7_';
 
   const prompts = [
     "public argument","first kiss (or almost)","broken phone","rain confession",
@@ -477,7 +480,11 @@
     }
     hadBingo = any;
 
-    statusEl.textContent = any ? 'bingo' : 'no bingo yet';
+    if(any){
+      statusEl.textContent = 'bingo — screenshot this card to redeem for points!';
+    }else{
+      statusEl.textContent = 'no bingo yet';
+    }
     statusEl.classList.toggle('is-bingo', any);
     return wins;
   }
@@ -580,7 +587,20 @@
       done.innerHTML = "<div class='ls-check'>✔</div>";
       el.appendChild(done);
 
-      el.addEventListener('click', ()=> openModal(i));
+      // Left click = open editor
+      el.addEventListener('click', (evt)=>{
+        if(evt.button === 0){ // left
+          openModal(i);
+        }
+      });
+
+      // Middle click = quick toggle complete
+      el.addEventListener('auxclick', (evt)=>{
+        if(evt.button === 1){ // middle mouse
+          evt.preventDefault();
+          toggleDone(i);
+        }
+      });
 
       grid.appendChild(el);
     });
@@ -599,6 +619,13 @@
   function closeEditor(){
     modal.classList.remove('show');
     selectedIndex = null;
+  }
+
+  function toggleDone(i){
+    state[i].done = !state[i].done;
+    if(i===MID) state[i].done = true; // free space always done
+    saveStateData();
+    render();
   }
 
   async function handleSaveSquare(){
@@ -678,4 +705,3 @@
 </script>
 </body>
 </html>
-
