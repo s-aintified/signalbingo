@@ -127,7 +127,7 @@
     background:#0c0f14;
     box-shadow:0 0 0 1px rgba(255,255,255,.03);
     margin:0 auto;
-    max-width:1000px;   /* bigger board */
+    max-width:1000px;
     width:100%;
   }
   .ls-grid::before{
@@ -397,7 +397,7 @@
     'g-4':['#8A5A16','#DFA546','#F8CC76'],     // Staff
     'g-6':['#A13D5B','#E8718A','#FFA0B2'],     // Romance
     'g-7':['#161B2E','#353E58','#616B89'],     // Mystery
-    'g-8':['#3D338D','#7362E8','#9D8CFF'],     // Fantasy
+    'g-8':['#3D338D','#7362E8','#9D8FF'],     // Fantasy (small fix if needed)
     'g-9':['#823424','#BF5C40','#E89A65'],     // Drama
     'g-10':['#00666D','#289DA5','#5AD2DC'],    // Sci-Fi
     'g-11':['#360000','#760A0A','#AA2727'],    // Horror
@@ -422,61 +422,101 @@
   const MID  = 12;
   const PREFIX = 'lowSignalBingo_v11_';
 
-  /* master prompt pool with descriptions */
+  /* master prompt pool with emojis + descriptions */
   const promptPool = [
-    /* ORIGINAL SET WITH DESCRIPTIONS */
-    { text:"public argument",        desc:"two characters argue in public where others can see or overhear" },
-    { text:"first kiss (or almost)", desc:"a first kiss finally happens — or almost does and gets interrupted" },
-    { text:"broken phone",          desc:"a phone breaks, gets lost, or otherwise ruins communication" },
-    { text:"rain confession",       desc:"someone confesses something big in the rain or bad weather" },
-    { text:"caught lying",          desc:"a character is caught in a lie — big or small, but it matters" },
-    { text:"fake apology",          desc:"“sorry” is said, but it’s clearly not genuine" },
-    { text:"late-night drive",      desc:"characters share a late-night car ride that changes the vibe" },
-    { text:"crime of opportunity",  desc:"someone does something shady or illegal simply because they can" },
-    { text:"soft domestic",         desc:"quiet, everyday intimacy — cooking, cleaning, sleepover, etc." },
-    { text:"unexpected softness",   desc:"a usually guarded character shows a surprisingly gentle side" },
-    { text:"wrong person saw",      desc:"someone sees something they were never meant to witness" },
-    { text:"rivals to allies",      desc:"two characters who usually clash end up on the same side" },
-    { text:"free space",            desc:"automatic free space — counts as already complete" },
-    { text:"stolen glance",         desc:"someone gets caught staring a little too long" },
-    { text:"self-sabotage",         desc:"a character ruins their own chances out of fear or habit" },
-    { text:"petty revenge",         desc:"someone gets even in a small, deliciously petty way" },
-    { text:"drunk honesty",         desc:"alcohol or altered state leads to a little too much truth" },
-    { text:"found footage",         desc:"evidence appears in the form of photos, videos, or recordings" },
-    { text:"unreliable narration",  desc:"a scene shows someone misremembering, lying, or skewing reality" },
-    { text:"secret exposed",        desc:"a secret finally comes out — on purpose or by accident" },
-    { text:"we shouldn't be here",  desc:"characters are somewhere they know they shouldn’t be" },
-    { text:"left on read",          desc:"a text/DM is seen but ignored long enough to sting" },
-    { text:"make a wish",           desc:"someone makes a wish — birthday, coin toss, ritual, etc." },
-    { text:"messy meet-cute",       desc:"a first meeting that’s cute but also chaotic or embarrassing" },
-    { text:"burn it down",          desc:"a character destroys something important — literally or metaphorically" },
+    /* ORIGINAL PROMPTS */
+    { text:"public argument",        emoji:"💥", desc:"two characters argue in public where others can see or overhear" },
+    { text:"first kiss (or almost)", emoji:"💋", desc:"a first kiss finally happens — or almost does and gets interrupted" },
+    { text:"broken phone",          emoji:"📱💔", desc:"a phone breaks, gets lost, or ruins communication at the worst time" },
+    { text:"rain confession",       emoji:"🌧️", desc:"someone confesses something big in the rain or bad weather" },
+    { text:"caught lying",          emoji:"🤥", desc:"a character is caught in a lie — big or small, but it matters" },
+    { text:"fake apology",          emoji:"🙃", desc:"“sorry” is said, but it’s clearly not genuine" },
+    { text:"late-night drive",      emoji:"🌙🚗", desc:"characters share a late-night car ride that changes the vibe" },
+    { text:"crime of opportunity",  emoji:"🧤", desc:"someone does something shady or illegal simply because they can" },
+    { text:"soft domestic",         emoji:"🫧", desc:"quiet, everyday intimacy — cooking, cleaning, sleepover, etc." },
+    { text:"unexpected softness",   emoji:"🩹", desc:"a usually guarded character shows a surprisingly gentle side" },
+    { text:"wrong person saw",      emoji:"👀", desc:"someone sees something they were never meant to witness" },
+    { text:"rivals to allies",      emoji:"⚔️🤝", desc:"two characters who usually clash end up on the same side" },
+    { text:"free space",            emoji:"⭐",  desc:"automatic free space — counts as already complete" },
+    { text:"stolen glance",         emoji:"👁️", desc:"someone gets caught staring a little too long" },
+    { text:"self-sabotage",         emoji:"🧨", desc:"a character ruins their own chances out of fear or habit" },
+    { text:"petty revenge",         emoji:"😈", desc:"someone gets even in a small, deliciously petty way" },
+    { text:"drunk honesty",         emoji:"🍷", desc:"alcohol or altered state leads to a little too much truth" },
+    { text:"found footage",         emoji:"🎥", desc:"evidence appears in the form of photos, videos, or recordings" },
+    { text:"unreliable narration",  emoji:"📓", desc:"a scene shows someone misremembering, lying, or skewing reality" },
+    { text:"secret exposed",        emoji:"🫢", desc:"a secret finally comes out — on purpose or by accident" },
+    { text:"we shouldn't be here",  emoji:"🚫", desc:"characters are somewhere they know they shouldn’t be" },
+    { text:"left on read",          emoji:"📵", desc:"a text/DM is seen but ignored long enough to sting" },
+    { text:"make a wish",           emoji:"✨", desc:"someone makes a wish — birthday, coin toss, ritual, etc." },
+    { text:"messy meet-cute",       emoji:"☕", desc:"a first meeting that’s cute but also chaotic or embarrassing" },
+    { text:"burn it down",          emoji:"🔥", desc:"a character destroys something important — literally or metaphorically" },
 
-    /* NEW MIX-INS WITH DESCRIPTIONS */
-    { text:"bad timing",            desc:"someone shows up, calls, or confesses at the worst possible moment" },
-    { text:"wrong bed",             desc:"two characters wake up or end up sharing the same bed" },
-    { text:"overheard everything",  desc:"a character hears a conversation or confession they weren’t meant to" },
-    { text:"ghost text",            desc:"a risky or emotional text is sent, deleted, or seen too late" },
-    { text:"rooftop moment",        desc:"a big emotional beat happens on a roof, balcony, or fire escape" },
-    { text:"unspoken tension",      desc:"a scene full of almost-touches, loaded looks, or things unsaid" },
-    { text:"someone snaps",         desc:"a character finally loses their cool and explodes or breaks down" },
-    { text:"caught red-handed",     desc:"someone is caught in the act — cheating, stealing, sneaking, etc." },
-    { text:"last nerve",            desc:"a character officially runs out of patience or emotional energy" },
-    { text:"jealousy arc",          desc:"someone gets jealous — quietly stewing or loudly acting out" },
-    { text:"running late",          desc:"someone’s lateness has emotional, dramatic, or practical fallout" },
-    { text:"heat of the moment",    desc:"impulsive action — kiss, fight, confession, hookup — no take-backs" },
-    { text:"phone dies",            desc:"a dead battery makes everything more complicated" },
-    { text:"roommate chaos",        desc:"shared living space leads to conflict, comedy, or intimacy" },
-    { text:"deal with the devil",   desc:"someone makes a deal they know will cost them later" },
-    { text:"the ultimatum",         desc:"a clear boundary: choose this or that, no middle ground" },
-    { text:"morning after",         desc:"characters deal with the fallout of the night before" },
-    { text:"wrong number",          desc:"a text, call, or image reaches the wrong person" },
-    { text:"stolen item",           desc:"someone takes or keeps something that isn’t theirs" },
-    { text:"patch-up scene",        desc:"one character tends another’s wounds, injuries, or exhaustion" },
-    { text:"emotionally cooked",    desc:"someone hits an embarrassingly vulnerable breaking point" },
-    { text:"locked in together",    desc:"characters are stuck together in a blocked-off or trapped space" },
-    { text:"hand-holding incident", desc:"hand-holding (accidental or intentional) changes the emotional tone" },
-    { text:"undone by kindness",    desc:"a character breaks down because someone is unusually gentle" },
-    { text:"surprise visitor",      desc:"an unexpected person shows up at exactly the wrong or right time" }
+    /* EMOTION PROMPTS (KEPT ONES) */
+    { text:"heart in throat",              emoji:"💓", desc:"visible anxiety or nerves — shaking hands, voice cracks, fidgeting" },
+    { text:"ugly cry unlocked",            emoji:"😭", desc:"full, unpretty, uncontrollable crying in front of someone" },
+    { text:"laughing instead of breaking", emoji:"😂🥲", desc:"joking or laughing to avoid crying, spiraling, or panicking" },
+    { text:"you weren't supposed to see that", emoji:"🚫👀", desc:"someone witnesses a rock-bottom or deeply private moment" },
+    { text:"i didn’t mean that",           emoji:"🫢", desc:"harsh words said in anger are instantly regretted" },
+    { text:"too tired to fight",           emoji:"😮‍💨", desc:"the character emotionally checks out instead of arguing" },
+    { text:"please don't go",              emoji:"🧷", desc:"someone asks another to stay — with words or actions" },
+    { text:"i’m fine (they are not fine)", emoji:"🙂‍↔️", desc:"character insists they’re okay while clearly falling apart" },
+    { text:"held together by coffee",      emoji:"☕", desc:"they’re surviving on caffeine and stress alone" },
+    { text:"touch-starved moment",         emoji:"🤲", desc:"a hug or touch lingers because they really needed it" },
+    { text:"jealousy they refuse to name", emoji:"💚", desc:"a character gets jealous but denies it or misdirects it" },
+    { text:"anger misfire",                emoji:"💢", desc:"they take anger meant for one thing out on someone else" },
+    { text:"i don't do feelings",          emoji:"🧊", desc:"emotionally unavailable character is forced into vulnerability" },
+    { text:"guilt keeps them awake",       emoji:"🌙😔", desc:"sleepless scene caused by regret, guilt, or anxiety" },
+    { text:"smiling through it",           emoji:"🙂",  desc:"faking a smile while obviously struggling inside" },
+    { text:"overstimulation overload",     emoji:"🔊",  desc:"too much noise, people, or pressure triggers shutdown or snap" },
+    { text:"wrong person, right comfort",  emoji:"🫂",  desc:"unexpected person gives the comfort they actually need" },
+    { text:"i'm not like them",            emoji:"🚷",  desc:"fear of becoming like a parent, ex, or role model slips out" },
+    { text:"emotionally hungover",         emoji:"🍾😵", desc:"the next day after a big emotional event feels heavy and raw" },
+    { text:"panic in the parking lot",     emoji:"🅿️💥", desc:"anxiety or panic spike before/after a big event in a liminal space" },
+    { text:"chose silence instead",        emoji:"🤐",  desc:"they almost tell the truth, then lie or change the subject" },
+    { text:"i don’t deserve you",          emoji:"💔",  desc:"someone admits feeling unworthy of another person" },
+    { text:"too much hope, too little proof", emoji:"☁️", desc:"they cling to a small sign things might get better" },
+    { text:"fear dressed up as control",   emoji:"🎛️", desc:"controlling behavior is clearly masking fear or insecurity" },
+    { text:"rage in the rearview",         emoji:"🔥🚗", desc:"they leave angry — the real emotions come out alone later" },
+    { text:"soft apology, sharp truth",    emoji:"🩹⚔️", desc:"gentle apology that still forces someone to face a hard reality" },
+
+    /* RELATIONSHIP PROMPTS (NO #10) */
+    { text:"stolen hoodie",        emoji:"🧥", desc:"wearing someone else’s clothes as comfort, claim, or habit" },
+    { text:"accidental intimacy",  emoji:"💘", desc:"fixing hair, jewelry, or clothes — unexpectedly intimate" },
+    { text:"we shouldn’t do this", emoji:"😈", desc:"they say it and still go through with it" },
+    { text:"lingering goodbye",    emoji:"🕰️", desc:"a goodbye hug, touch, or stare that goes on too long" },
+    { text:"late-night call",      emoji:"📞🌙", desc:"someone calls in the middle of the night with heavy vibes" },
+    { text:"old feelings resurface", emoji:"🥀", desc:"seeing someone from the past brings old emotions back" },
+    { text:"soft betrayal",        emoji:"🗡️", desc:"they hurt someone “for their own good” or to avoid pain" },
+    { text:"almost confessed",     emoji:"🫣", desc:"they nearly admit feelings or truth, then swallow it" },
+    { text:"tension that won’t die", emoji:"⚡", desc:"ongoing unresolved tension that keeps returning" },
+
+    /* SINGLE PEOPLE PROMPTS (KEEP ALL BUT 15,17) */
+    { text:"i deserve something nice", emoji:"🎁", desc:"character treats themselves — big or small indulgence" },
+    { text:"delulu but thriving",     emoji:"🌈", desc:"they lean into a fantasy about their life or crush" },
+    { text:"self-care blackout",      emoji:"🧽🕯️", desc:"random burst of deep cleaning, planning, or self-care" },
+    { text:"flirted for sport",       emoji:"🎯", desc:"they flirt purely for fun or chaos" },
+    { text:"accidental hater",        emoji:"😒", desc:"they decide they don't like someone for no real reason" },
+    { text:"ignored the red flag on purpose", emoji:"🚩", desc:"they saw the warning signs and went in anyway" },
+
+    /* FAMILY / CHILDHOOD PROMPTS (ALL) */
+    { text:"old wound reopened",      emoji:"🩸", desc:"a past family hurt resurfaces and still stings" },
+    { text:"sibling chaos",           emoji:"👯‍♀️", desc:"messy, loud, or chaotic moment with a sibling or sibling-figure" },
+    { text:"found family moment",     emoji:"🏠", desc:"they feel truly at home with people who aren't blood" },
+    { text:"“just like your mother/father”", emoji:"🪞", desc:"comparison to a parent triggers pride, fear, or anger" },
+    { text:"surprise visit from home", emoji:"🧳", desc:"family or someone from the past shows up unannounced" },
+    { text:"childhood keepsake",      emoji:"🧸", desc:"an object tied to their past appears or is held onto" },
+    { text:"family secret slips out", emoji:"🫙🫢", desc:"a comment reveals something the family tried to hide" },
+    { text:"not ready to talk about it", emoji:"🧱", desc:"they shut down when family or history comes up" },
+
+    /* FRIENDSHIP PROMPTS (NO #33) */
+    { text:"bestie intervention",     emoji:"🪑🗣️", desc:"friends team up to call someone out or hype them up to change" },
+    { text:"hype squad moment",       emoji:"📣", desc:"friends loudly cheer them on — outfit, date, life choice" },
+    { text:"loyalty test",            emoji:"🐕", desc:"a friend must choose a side or prove where their loyalty lies" },
+    { text:"unexpected comfort",      emoji:"☁️", desc:"comfort comes from a friend they didn’t expect" },
+    { text:"friend breakup",          emoji:"💔", desc:"two friends argue, drift apart, or end things" },
+    { text:"secret shared over drinks", emoji:"🥂", desc:"someone reveals something big during a shared drink" },
+    { text:"protective streak",       emoji:"🛡️", desc:"a friend gets protective — verbally or physically" },
+    { text:"the groupchat decides",   emoji:"📱💬", desc:"a big decision is influenced by the friend group" }
   ];
 
   /* map text -> desc for hover, including old saved cards */
@@ -525,7 +565,7 @@
   function makeDefault(){
     const free = promptPool.find(p => p.text === "free space");
     const others = promptPool.filter(p => p.text !== "free space");
-    const selected = others.slice(0, SIZE*SIZE - 1); // first 24 prompts
+    const selected = others.slice(0, SIZE*SIZE - 1);
     let idx = 0;
     const arr = [];
     for(let i=0;i<SIZE*SIZE;i++){
@@ -533,15 +573,17 @@
         arr.push({
           text: free.text,
           desc: free.desc,
+          emoji: free.emoji || "",
           img: null,
           url: null,
           done: true
         });
       } else {
-        const p = selected[idx++] || { text:"", desc:"" };
+        const p = selected[idx++] || { text:"", desc:"", emoji:"" };
         arr.push({
           text: p.text,
           desc: p.desc,
+          emoji: p.emoji || "",
           img: null,
           url: null,
           done: false
@@ -663,6 +705,9 @@
       if(winSet.has(i)) cls += ' win';
       el.className = cls;
 
+      const meta = promptPool.find(p => p.text === cell.text) || {};
+      const emoji = cell.emoji || meta.emoji || "";
+      const label = (emoji ? emoji + " " : "") + cell.text;
       const hoverDesc = cell.desc || promptDescMap[cell.text] || cell.text;
 
       if(cell.img){
@@ -683,7 +728,7 @@
 
       const text = document.createElement('div');
       text.className='ls-text';
-      text.textContent = cell.text;
+      text.textContent = label;
       el.appendChild(text);
 
       if(cell.url){
@@ -779,14 +824,18 @@
     const loaded = loadState(PREFIX+id);
     state = loaded || makeDefault();
 
-    // backfill descriptions for older saves
-    state = state.map(cell => ({
-      text: cell.text,
-      desc: cell.desc || promptDescMap[cell.text] || "",
-      img: cell.img || null,
-      url: cell.url || null,
-      done: !!cell.done
-    }));
+    // backfill descriptions + emojis for older saves
+    state = state.map(cell => {
+      const meta = promptPool.find(p => p.text === cell.text) || {};
+      return {
+        text: cell.text,
+        desc: cell.desc || meta.desc || promptDescMap[cell.text] || "",
+        emoji: cell.emoji || meta.emoji || "",
+        img: cell.img || null,
+        url: cell.url || null,
+        done: !!cell.done
+      };
+    });
 
     saveStateData();
     render();
@@ -820,7 +869,6 @@
     const free = promptPool.find(p => p.text === "free space");
     const others = promptPool.filter(p => p.text !== "free space");
 
-    // shuffle copy of others
     const shuffled = others.slice();
     for(let i = shuffled.length - 1; i > 0; i--){
       const j = Math.floor(Math.random() * (i + 1));
@@ -834,15 +882,17 @@
         arr.push({
           text: free.text,
           desc: free.desc,
+          emoji: free.emoji || "",
           img: null,
           url: null,
           done: true
         });
       } else {
-        const p = shuffled[idx++] || { text:"", desc:"" };
+        const p = shuffled[idx++] || { text:"", desc:"", emoji:"" };
         arr.push({
           text: p.text,
           desc: p.desc,
+          emoji: p.emoji || "",
           img: null,
           url: null,
           done: false
