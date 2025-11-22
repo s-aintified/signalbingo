@@ -337,13 +337,13 @@
 <body>
 
 <div class="ls-wrap" id="bingoApp">
-  <h1 class="ls-logo">LOW SIGNAL</h1>
+  <h1 class="ls-logo">LOW SIGNAL BINGO</h1>
   <div class="ls-sub">
-    click a square to edit • use the checkbox to mark it complete • center is always free
+    click a square to edit • use the checkbox to mark it complete • center is always free • to start new card, go to default and randomize and name your new card then save.
   </div>
 
   <div class="ls-controls">
-    <input class="ls-input" id="profileId" placeholder="profile id (e.g. yana-main / character)">
+    <input class="ls-input" id="profileId" placeholder="character name">
     <select class="ls-select" id="profilesList"></select>
     <button class="ls-btn" id="loadProfile">load</button>
     <button class="ls-btn" id="deleteProfile">delete</button>
@@ -354,7 +354,7 @@
 
   <div class="ls-legend">
     Add a thread link + optional image per square. When you get 5 completed squares in a row
-    (row, column, or diagonal), those squares will glow neon — screenshot your card to redeem points.
+    (row, column, or diagonal), those squares will glow neon. screenshot your card to redeem points.
   </div>
 
   <div class="ls-status" id="status">no bingo yet</div>
@@ -379,7 +379,7 @@
       <input type="file" class="ls-input" id="fileImage" accept="image/*">
     </div>
     <label style="font-size:12px;">
-      <input type="checkbox" id="doneChk"> mark this square complete
+      <input type="checkbox" id="doneChk"> mark as complete
     </label>
     <div class="ls-row" style="justify-content:flex-end;margin-top:12px;">
       <button class="ls-btn ls-mini ls-danger" id="clearImage">remove image</button>
