@@ -396,16 +396,68 @@
 (() => {
   const SIZE = 5;
   const MID  = 12;
-  const PREFIX = 'lowSignalBingo_v10_';
+  const PREFIX = 'lowSignalBingo_v11_';
 
-  const prompts = [
-    "public argument","first kiss (or almost)","broken phone","rain confession",
-    "caught lying","fake apology","late-night drive","crime of opportunity",
-    "soft domestic","unexpected softness","wrong person saw","rivals to allies",
-    "free space","stolen glance","self-sabotage","petty revenge",
-    "drunk honesty","found footage","unreliable narration","secret exposed",
-    "we shouldn’t be here","left on read","make a wish","messy meet-cute","burn it down"
+  /* master prompt pool with descriptions */
+  const promptPool = [
+    /* ORIGINAL SET WITH DESCRIPTIONS */
+    { text:"public argument",        desc:"two characters argue in public where others can see or overhear" },
+    { text:"first kiss (or almost)", desc:"a first kiss finally happens — or almost does and gets interrupted" },
+    { text:"broken phone",          desc:"a phone breaks, gets lost, or otherwise ruins communication" },
+    { text:"rain confession",       desc:"someone confesses something big in the rain or bad weather" },
+    { text:"caught lying",          desc:"a character is caught in a lie — big or small, but it matters" },
+    { text:"fake apology",          desc:"“sorry” is said, but it’s clearly not genuine" },
+    { text:"late-night drive",      desc:"characters share a late-night car ride that changes the vibe" },
+    { text:"crime of opportunity",  desc:"someone does something shady or illegal simply because they can" },
+    { text:"soft domestic",         desc:"quiet, everyday intimacy — cooking, cleaning, sleepover, etc." },
+    { text:"unexpected softness",   desc:"a usually guarded character shows a surprisingly gentle side" },
+    { text:"wrong person saw",      desc:"someone sees something they were never meant to witness" },
+    { text:"rivals to allies",      desc:"two characters who usually clash end up on the same side" },
+    { text:"free space",            desc:"automatic free space — counts as already complete" },
+    { text:"stolen glance",         desc:"someone gets caught staring a little too long" },
+    { text:"self-sabotage",         desc:"a character ruins their own chances out of fear or habit" },
+    { text:"petty revenge",         desc:"someone gets even in a small, deliciously petty way" },
+    { text:"drunk honesty",         desc:"alcohol or altered state leads to a little too much truth" },
+    { text:"found footage",         desc:"evidence appears in the form of photos, videos, or recordings" },
+    { text:"unreliable narration",  desc:"a scene shows someone misremembering, lying, or skewing reality" },
+    { text:"secret exposed",        desc:"a secret finally comes out — on purpose or by accident" },
+    { text:"we shouldn't be here",  desc:"characters are somewhere they know they shouldn’t be" },
+    { text:"left on read",          desc:"a text/DM is seen but ignored long enough to sting" },
+    { text:"make a wish",           desc:"someone makes a wish — birthday, coin toss, ritual, etc." },
+    { text:"messy meet-cute",       desc:"a first meeting that’s cute but also chaotic or embarrassing" },
+    { text:"burn it down",          desc:"a character destroys something important — literally or metaphorically" },
+
+    /* NEW MIX-INS WITH DESCRIPTIONS */
+    { text:"bad timing",            desc:"someone shows up, calls, or confesses at the worst possible moment" },
+    { text:"wrong bed",             desc:"two characters wake up or end up sharing the same bed" },
+    { text:"overheard everything",  desc:"a character hears a conversation or confession they weren’t meant to" },
+    { text:"ghost text",            desc:"a risky or emotional text is sent, deleted, or seen too late" },
+    { text:"rooftop moment",        desc:"a big emotional beat happens on a roof, balcony, or fire escape" },
+    { text:"unspoken tension",      desc:"a scene full of almost-touches, loaded looks, or things unsaid" },
+    { text:"someone snaps",         desc:"a character finally loses their cool and explodes or breaks down" },
+    { text:"caught red-handed",     desc:"someone is caught in the act — cheating, stealing, sneaking, etc." },
+    { text:"last nerve",            desc:"a character officially runs out of patience or emotional energy" },
+    { text:"jealousy arc",          desc:"someone gets jealous — quietly stewing or loudly acting out" },
+    { text:"running late",          desc:"someone’s lateness has emotional, dramatic, or practical fallout" },
+    { text:"heat of the moment",    desc:"impulsive action — kiss, fight, confession, hookup — no take-backs" },
+    { text:"phone dies",            desc:"a dead battery makes everything more complicated" },
+    { text:"roommate chaos",        desc:"shared living space leads to conflict, comedy, or intimacy" },
+    { text:"deal with the devil",   desc:"someone makes a deal they know will cost them later" },
+    { text:"the ultimatum",         desc:"a clear boundary: choose this or that, no middle ground" },
+    { text:"morning after",         desc:"characters deal with the fallout of the night before" },
+    { text:"wrong number",          desc:"a text, call, or image reaches the wrong person" },
+    { text:"stolen item",           desc:"someone takes or keeps something that isn’t theirs" },
+    { text:"patch-up scene",        desc:"one character tends another’s wounds, injuries, or exhaustion" },
+    { text:"emotionally cooked",    desc:"someone hits an embarrassingly vulnerable breaking point" },
+    { text:"locked in together",    desc:"characters are stuck together in a blocked-off or trapped space" },
+    { text:"hand-holding incident", desc:"hand-holding (accidental or intentional) changes the emotional tone" },
+    { text:"undone by kindness",    desc:"a character breaks down because someone is unusually gentle" },
+    { text:"surprise visitor",      desc:"an unexpected person shows up at exactly the wrong or right time" }
   ];
+
+  /* map text -> desc for hover, including old saved cards */
+  const promptDescMap = {};
+  promptPool.forEach(p => { promptDescMap[p.text] = p.desc; });
 
   const grid = document.getElementById('grid');
   const statusEl = document.getElementById('status');
@@ -445,10 +497,34 @@
       return raw ? JSON.parse(raw) : null;
     }catch{return null;}
   }
+
   function makeDefault(){
-    const list = prompts.slice(0, SIZE*SIZE);
-    list[MID] = 'free space';
-    return list.map((text,i)=>({text, img:null, url:null, done:i===MID}));
+    const free = promptPool.find(p => p.text === "free space");
+    const others = promptPool.filter(p => p.text !== "free space");
+    const selected = others.slice(0, SIZE*SIZE - 1); // first 24 prompts
+    let idx = 0;
+    const arr = [];
+    for(let i=0;i<SIZE*SIZE;i++){
+      if(i === MID){
+        arr.push({
+          text: free.text,
+          desc: free.desc,
+          img: null,
+          url: null,
+          done: true
+        });
+      } else {
+        const p = selected[idx++] || { text:"", desc:"" };
+        arr.push({
+          text: p.text,
+          desc: p.desc,
+          img: null,
+          url: null,
+          done: false
+        });
+      }
+    }
+    return arr;
   }
 
   function listProfiles(){
@@ -563,6 +639,10 @@
       if(winSet.has(i)) cls += ' win';
       el.className = cls;
 
+      // tooltip hover = description
+      const hoverDesc = cell.desc || promptDescMap[cell.text] || cell.text;
+      el.title = hoverDesc;
+
       if(cell.img){
         const img = document.createElement('div');
         img.className='ls-img';
@@ -671,6 +751,16 @@
     profileId.value = id;
     const loaded = loadState(PREFIX+id);
     state = loaded || makeDefault();
+
+    // backfill descriptions for older saves
+    state = state.map(cell => ({
+      text: cell.text,
+      desc: cell.desc || promptDescMap[cell.text] || "",
+      img: cell.img || null,
+      url: cell.url || null,
+      done: !!cell.done
+    }));
+
     saveStateData();
     render();
   });
@@ -700,14 +790,39 @@
   });
 
   function randomizePrompts(){
-    const shuffled = prompts.slice();
-    // Fisher–Yates
+    const free = promptPool.find(p => p.text === "free space");
+    const others = promptPool.filter(p => p.text !== "free space");
+
+    // shuffle copy of others
+    const shuffled = others.slice();
     for(let i = shuffled.length - 1; i > 0; i--){
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    shuffled[MID] = 'free space';
-    state = shuffled.map((text,i)=>({text, img:null, url:null, done:i===MID}));
+
+    let idx = 0;
+    const arr = [];
+    for(let i=0;i<SIZE*SIZE;i++){
+      if(i === MID){
+        arr.push({
+          text: free.text,
+          desc: free.desc,
+          img: null,
+          url: null,
+          done: true
+        });
+      } else {
+        const p = shuffled[idx++] || { text:"", desc:"" };
+        arr.push({
+          text: p.text,
+          desc: p.desc,
+          img: null,
+          url: null,
+          done: false
+        });
+      }
+    }
+    state = arr;
     saveStateData();
     render();
   }
